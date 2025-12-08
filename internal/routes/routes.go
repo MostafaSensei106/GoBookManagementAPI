@@ -29,7 +29,6 @@ var RegisterRoutes = func(r *mux.Router) {
 	//------------------------------------------------
 	// Book Routes
 	//------------------------------------------------
-	r.HandleFunc(bookRoute, handlers.GetBook).Methods(GET)
 	r.HandleFunc(bookRouteID, handlers.GetBookByID).Methods(GET)
 	r.HandleFunc(bookesRoute, handlers.GetAllBooks).Methods(GET)
 	r.HandleFunc(bookRoute, handlers.CreateBook).Methods(POST)

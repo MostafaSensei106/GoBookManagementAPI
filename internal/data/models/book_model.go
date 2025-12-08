@@ -18,12 +18,52 @@ type Book struct {
 	Publication string         `json:"publication"`
 }
 
+func (b *Book) copyWith(fields map[string]interface{}) *Book {
+	newBook := *b
+
+	for key, value := range fields {
+		switch key {
+		case "name":
+			if v, ok := value.(string); ok {
+				newBook.Name = v
+			}
+
+		case "description":
+			if v, ok := value.(string); ok {
+				newBook.Description = v
+			}
+
+		case "isbn":
+			if v, ok := value.(string); ok {
+				newBook.ISBN = v
+			}
+
+		case "author_id":
+			if v, ok := value.(uint); ok {
+				newBook.AuthorID = v
+			}
+
+		case "categories":
+			if v, ok := value.([]BoolCategory); ok {
+				newBook.Categories = v
+			}
+
+		case "publication":
+			if v, ok := value.(string); ok {
+				newBook.Publication = v
+			}
+		}
+	}
+	return &newBook
+}
+
 func (b *Book) CreateBook() (*Book, error) {
 	if err := db.Create(b).Error; err != nil {
 		return nil, err
 	}
 	return b, nil
 }
+
 func GetAllBooks() ([]Book, error) {
 	var books []Book
 	if err := db.Preload("Author").Preload("Categories").Find(&books).Error; err != nil {
@@ -50,10 +90,15 @@ func DeleteBook(id int64) error {
 	return db.Delete(&book).Error
 }
 
-func UpdateBook(id int64, book *Book) error {
-	result := db.First(&book, id)
-	if result.Error != nil {
-		return result.Error
+func UpdateBook(id int64, fileds map[string]interface{}) (*Book, error) {
+	var book Book
+
+	if err := db.Preload("Author").Preload("Categories").First(&book, id).Error; err != nil {
+		return nil, err
 	}
-	return db.Save(&book).Error
+	updatedBook := book.copyWith(fileds)
+	if err := db.Save(updatedBook).Error; err != nil {
+		return nil, err
+	}
+	return updatedBook, nil
 }
