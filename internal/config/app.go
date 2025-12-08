@@ -1,23 +1,24 @@
 package config
 
 import (
-	"github.com/jinzhu/gorm"
+	"log"
 
-	"github.com/MostafaSensei106/GoBookManagementAPI/internal/constants"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 var (
 	db *gorm.DB
 )
 
-func Connect() {
-	d, err := gorm.Open(constants.DataBaseClient, "root:root@/simplerest?charset=utf8&parseTime=True&loc=Local")
+func Connect() *gorm.DB {
+	dsn := "root:root@tcp(127.0.0.1:3306)/senseibookstore?charset=utf8mb4&parseTime=True&loc=Local"
+	var err error
+	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
-		panic(err)
+		log.Fatalf("Failed to connect to database: %v", err)
 	}
-
-	db = d
-
+	return db
 }
 
 func GetDB() *gorm.DB {

@@ -19,9 +19,9 @@ const (
 )
 
 const (
-	authorRoute   = "/author/"
-	authorRouteID = "/author/{id}"
-	authoresRoute = "/authors"
+// authorRoute   = "/author/"
+// authorRouteID = "/author/{id}"
+// authoresRoute = "/authors"
 )
 
 var RegisterRoutes = func(r *mux.Router) {
@@ -38,10 +38,10 @@ var RegisterRoutes = func(r *mux.Router) {
 	//------------------------------------------------
 	// Author Routes
 	//------------------------------------------------
-	r.HandleFunc(authorRoute, handlers.GetAuthor).Methods(GET)
-	r.HandleFunc(authorRouteID, handlers.GetAuthorByID).Methods(GET)
-	r.HandleFunc(authoresRoute, handlers.GetAllAuthors).Methods(GET)
-	r.HandleFunc(authorRoute, handlers.CreateAuthor).Methods(POST)
-	r.HandleFunc(authorRouteID, handlers.UpdateAuthor).Methods(PUT)
-	r.HandleFunc(authorRouteID, handlers.DeleteAuthor).Methods(DELETE)
+	// r.HandleFunc(authorRoute, handlers.GetAuthor).Methods(GET)
+	// r.HandleFunc(authorRouteID, handlers.GetAuthorByID).Methods(GET)
+	// r.HandleFunc(authoresRoute, handlers.GetAllAuthors).Methods(GET)
+	// r.HandleFunc(authorRoute, handlers.CreateAuthor).Methods(POST)
+	// r.HandleFunc(authorRouteID, handlers.UpdateAuthor).Methods(PUT)
+	// r.HandleFunc(authorRouteID, handlers.DeleteAuthor).Methods(DELETE)
 }

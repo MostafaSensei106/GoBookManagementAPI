@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 
 	"github.com/MostafaSensei106/GoBookManagementAPI/internal/constants"
 	"github.com/MostafaSensei106/GoBookManagementAPI/internal/data/models"

@@ -6,10 +6,10 @@ import (
 	"github.com/MostafaSensei106/GoBookManagementAPI/internal/config"
 )
 
-func init() {
+func Init() {
 	config.Connect()
-	db = config.GetDB()
-	if err := db.AutoMigrate(&Book{}, &Author{}, &BoolCategory{}); err != nil {
+	db := config.GetDB()
+	if err := db.AutoMigrate(&Author{}, &BoolCategory{}, &Book{}); err != nil {
 		log.Fatalf("AutoMigrate failed: %v", err)
 	}
 }
