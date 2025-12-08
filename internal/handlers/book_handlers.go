@@ -14,131 +14,111 @@ import (
 	"github.com/MostafaSensei106/GoBookManagementAPI/internal/utils"
 )
 
-var NewBook models.Book
+// ---------------- Helper Functions ----------------
+
+func writeJSON(w http.ResponseWriter, status int, payload interface{}) {
+	w.Header().Set(constants.ContentType, constants.ApplicationJson)
+	w.WriteHeader(status)
+	if payload != nil {
+		json.NewEncoder(w).Encode(payload)
+	}
+}
+
+func parseID(r *http.Request, param string) (int64, error) {
+	vars := mux.Vars(r)
+	idStr := vars[param]
+	return strconv.ParseInt(idStr, 10, 64)
+}
+
+// ---------------- Handlers ----------------
 
 func GetAllBooks(w http.ResponseWriter, r *http.Request) {
-	var books []models.Book
-	var err error
-
-	books, err = models.GetAllBooks()
+	books, err := models.GetAllBooks()
 	if err != nil {
-		panic(err)
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to get books"})
+		return
 	}
-
-	res, err := json.Marshal(books)
-	if err != nil {
-		panic(err)
-	}
-
-	w.Header().Set(constants.ContentType, constants.ApplicationJson)
-	w.WriteHeader(http.StatusOK)
-	w.Write(res)
+	writeJSON(w, http.StatusOK, books)
 }
 
 func GetBookByID(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id := vars["book_id"]
-
-	ID, err := strconv.ParseInt(id, 10, 64)
+	id, err := parseID(r, "book_id")
 	if err != nil {
-		http.Error(w, "invalid book id", http.StatusBadRequest)
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid book id"})
 		return
 	}
 
-	bookDetails, err := models.GetBookByID(ID)
+	book, err := models.GetBookByID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			http.Error(w, "book not found", http.StatusNotFound)
+			writeJSON(w, http.StatusNotFound, map[string]string{"error": "book not found"})
 			return
 		}
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
-	}
-	res, err := json.Marshal(bookDetails)
-	if err != nil {
-		http.Error(w, "failed to marshal book details", http.StatusInternalServerError)
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to get book"})
 		return
 	}
 
-	w.Header().Set(constants.ContentType, constants.ApplicationJson)
-	w.WriteHeader(http.StatusOK)
-	w.Write(res)
-	if err := json.NewEncoder(w).Encode(bookDetails); err != nil {
-		http.Error(w, "failed to encode book", http.StatusInternalServerError)
-	}
+	writeJSON(w, http.StatusOK, book)
 }
 
 func CreateBook(w http.ResponseWriter, r *http.Request) {
-	CreateBook := &models.Book{}
-	utils.ParseBody(r, CreateBook)
-
-	b, err := CreateBook.CreateBook()
-	if err != nil {
-		http.Error(w, "failed to create book", http.StatusInternalServerError)
+	book := &models.Book{}
+	if err := utils.ParseBody(r, book); err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid request body"})
 		return
 	}
-	res, err := json.Marshal(b)
+
+	b, err := book.CreateBook()
 	if err != nil {
-		http.Error(w, "failed to marshal book", http.StatusInternalServerError)
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to create book"})
 		return
 	}
-	w.Header().Set(constants.ContentType, constants.ApplicationJson)
-	w.WriteHeader(http.StatusOK)
-	w.Write(res)
 
+	writeJSON(w, http.StatusOK, b)
 }
 
 func UpdateBook(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set(constants.ContentType, constants.ApplicationJson)
-
-	vars := mux.Vars(r)
-	idstr := vars["book_id"]
-
-	ID, err := strconv.ParseInt(idstr, 0, 0)
+	id, err := parseID(r, "book_id")
 	if err != nil {
-		http.Error(w, "invalid book id", http.StatusBadRequest)
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid book id"})
 		return
 	}
-	var faileds map[string]interface{}
-	if err := json.NewDecoder(r.Body).Decode(&faileds); err != nil {
-		http.Error(w, "failed to decode book", http.StatusInternalServerError)
-		return
-	}
-	updatedBook, err := models.UpdateBook(ID, faileds)
-	if err != nil {
-		http.Error(w, "failed to update book", http.StatusInternalServerError)
-		return
-	}
-	res, err := json.Marshal(updatedBook)
-	if err != nil {
-		http.Error(w, "failed to marshal book", http.StatusInternalServerError)
-		return
-	}
-	w.WriteHeader(http.StatusOK)
-	w.Write(res)
 
+	var fields map[string]interface{}
+	if err := json.NewDecoder(r.Body).Decode(&fields); err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid request body"})
+		return
+	}
+
+	updatedBook, err := models.UpdateBook(id, fields)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			writeJSON(w, http.StatusNotFound, map[string]string{"error": "book not found"})
+			return
+		}
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to update book"})
+		return
+	}
+
+	writeJSON(w, http.StatusOK, updatedBook)
 }
 
 func DeleteBook(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id := vars["book_id"]
-
-	ID, err := strconv.ParseInt(id, 0, 0)
+	id, err := parseID(r, "book_id")
 	if err != nil {
-		http.Error(w, "invalid book id", http.StatusBadRequest)
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid book id"})
 		return
 	}
 
-	err = models.DeleteBook(ID)
+	err = models.DeleteBook(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			http.Error(w, "book not found", http.StatusNotFound)
+			writeJSON(w, http.StatusNotFound, map[string]string{"error": "book not found"})
 			return
 		}
-		http.Error(w, "failed to delete book", http.StatusInternalServerError)
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to delete book"})
 		return
 	}
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{"message": "book deleted successfully"}`))
 
+	writeJSON(w, http.StatusOK, map[string]string{"message": "book deleted successfully"})
 }
