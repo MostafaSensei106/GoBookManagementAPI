@@ -12,7 +12,7 @@ var db *gorm.DB
 
 func Init() {
 	config.Connect()
-	db := config.GetDB()
+	db = config.GetDB()
 	if err := db.AutoMigrate(&Author{}, &BookCategory{}, &Book{}); err != nil {
 		log.Fatalf("AutoMigrate failed: %v", err)
 	}
