@@ -63,7 +63,7 @@ func parseID(r *http.Request, param string) (int64, error) {
 
 // Get All Books + Pagination
 func GetAllBooks(w http.ResponseWriter, r *http.Request) {
-	const maxLimit = 500
+	const maxLimit = 100
 
 	pageStr := r.URL.Query().Get("page")
 	limitStr := r.URL.Query().Get("limit")
