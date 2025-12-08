@@ -7,3 +7,8 @@ const (
 	DataBaseHost   = "localhost"
 	DataBasePort   = "3306"
 )
+
+const (
+	ApplicationJson = "application/json"
+	ContentType     = "Content-Type"
+)

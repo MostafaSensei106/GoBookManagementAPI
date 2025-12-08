@@ -1,12 +1,20 @@
 package handlers
 
-import "net/http"
+import (
+	"net/http"
+
+	models "github.com/MostafaSensei106/GoBookManagementAPI/internal/data/models/book_model"
+)
+
+var NewBook models.Book
 
 func GetAllBooks(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func GetBook(w http.ResponseWriter, r *http.Request) {}
+func GetBook(w http.ResponseWriter, r *http.Request) {
+
+}
 
 func GetBookByID(w http.ResponseWriter, r *http.Request) {}
 

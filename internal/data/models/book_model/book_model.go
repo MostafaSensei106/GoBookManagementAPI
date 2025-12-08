@@ -2,7 +2,11 @@ package models
 
 import (
 	"github.com/jinzhu/gorm"
+
+	"github.com/MostafaSensei106/GoBookManagementAPI/internal/config"
 )
+
+var db *gorm.DB
 
 // -------------------- Category --------------------
 type Category struct {
@@ -31,4 +35,14 @@ type Book struct {
 	Author      Author     `gorm:"foreignKey:AuthorID" json:"author"`
 	Categories  []Category `gorm:"many2many:book_categories;" json:"categories"`
 	Publication string     `json:"publication"`
+}
+
+func init() {
+	config.Connect()
+	db = config.GetDB()
+	db.AutoMigrate(
+		&Book{},
+		&Author{},
+		&Category{},
+	)
 }
