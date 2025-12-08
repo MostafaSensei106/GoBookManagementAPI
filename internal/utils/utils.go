@@ -16,3 +16,8 @@ func ParseBody(r *http.Request, x interface{}) error {
 	}
 	return nil
 }
+
+func MapToJSON(m map[string]string) string {
+	bytes, _ := json.Marshal(m)
+	return string(bytes)
+}

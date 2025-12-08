@@ -14,14 +14,27 @@ import (
 	"github.com/MostafaSensei106/GoBookManagementAPI/internal/utils"
 )
 
+// ---------------- Response Struct ----------------
+
+type APIResponse struct {
+	Code    int         `json:"code"`             // HTTP status code
+	Message string      `json:"message"`          // رسالة نجاح أو فشل
+	Data    interface{} `json:"data,omitempty"`   // البيانات لو فيه
+	Detail  string      `json:"detail,omitempty"` // تفاصيل إضافية للأخطاء أو الفالديشن
+}
+
 // ---------------- Helper Functions ----------------
 
-func writeJSON(w http.ResponseWriter, status int, payload interface{}) {
+func writeResponse(w http.ResponseWriter, status int, message string, data interface{}, detail string) {
+	resp := APIResponse{
+		Code:    status,
+		Message: message,
+		Data:    data,
+		Detail:  detail,
+	}
 	w.Header().Set(constants.ContentType, constants.ApplicationJson)
 	w.WriteHeader(status)
-	if payload != nil {
-		json.NewEncoder(w).Encode(payload)
-	}
+	json.NewEncoder(w).Encode(resp)
 }
 
 func parseID(r *http.Request, param string) (int64, error) {
@@ -35,90 +48,99 @@ func parseID(r *http.Request, param string) (int64, error) {
 func GetAllBooks(w http.ResponseWriter, r *http.Request) {
 	books, err := models.GetAllBooks()
 	if err != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to get books"})
+		writeResponse(w, http.StatusInternalServerError, "Failed to get books", nil, err.Error())
 		return
 	}
-	writeJSON(w, http.StatusOK, books)
+	writeResponse(w, http.StatusOK, "Books retrieved successfully", books, "")
 }
 
 func GetBookByID(w http.ResponseWriter, r *http.Request) {
-	id, err := parseID(r, "book_id")
+	id, err := parseID(r, "id")
 	if err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid book id"})
+		writeResponse(w, http.StatusBadRequest, "Invalid book ID", nil, err.Error())
 		return
 	}
 
 	book, err := models.GetBookByID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			writeJSON(w, http.StatusNotFound, map[string]string{"error": "book not found"})
+			writeResponse(w, http.StatusNotFound, "Book not found", nil, err.Error())
 			return
 		}
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to get book"})
+		writeResponse(w, http.StatusInternalServerError, "Failed to get book", nil, err.Error())
 		return
 	}
 
-	writeJSON(w, http.StatusOK, book)
+	writeResponse(w, http.StatusOK, "Book retrieved successfully", book, "")
 }
 
 func CreateBook(w http.ResponseWriter, r *http.Request) {
 	book := &models.Book{}
 	if err := utils.ParseBody(r, book); err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid request body"})
+		writeResponse(w, http.StatusBadRequest, "Invalid request body", nil, err.Error())
+		return
+	}
+
+	if err := book.Validate(); err != nil {
+		writeResponse(w, http.StatusBadRequest, "Validation failed", nil, err.Error())
 		return
 	}
 
 	b, err := book.CreateBook()
 	if err != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to create book"})
+		writeResponse(w, http.StatusInternalServerError, "Failed to create book", nil, err.Error())
 		return
 	}
 
-	writeJSON(w, http.StatusOK, b)
+	writeResponse(w, http.StatusOK, "Book created successfully", b, "")
 }
 
 func UpdateBook(w http.ResponseWriter, r *http.Request) {
-	id, err := parseID(r, "book_id")
+	id, err := parseID(r, "id")
 	if err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid book id"})
+		writeResponse(w, http.StatusBadRequest, "Invalid book ID", nil, err.Error())
 		return
 	}
 
 	var fields map[string]interface{}
 	if err := json.NewDecoder(r.Body).Decode(&fields); err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid request body"})
+		writeResponse(w, http.StatusBadRequest, "Invalid request body", nil, err.Error())
 		return
 	}
 
 	updatedBook, err := models.UpdateBook(id, fields)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			writeJSON(w, http.StatusNotFound, map[string]string{"error": "book not found"})
+			writeResponse(w, http.StatusNotFound, "Book not found", nil, err.Error())
 			return
 		}
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to update book"})
+		if err := updatedBook.Validate(); err != nil { // validation check
+			writeResponse(w, http.StatusBadRequest, "Validation failed", nil, err.Error())
+			return
+		}
+		writeResponse(w, http.StatusInternalServerError, "Failed to update book", nil, err.Error())
 		return
 	}
 
-	writeJSON(w, http.StatusOK, updatedBook)
+	writeResponse(w, http.StatusOK, "Book updated successfully", updatedBook, "")
 }
 
 func DeleteBook(w http.ResponseWriter, r *http.Request) {
-	id, err := parseID(r, "book_id")
+	id, err := parseID(r, "id")
 	if err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid book id"})
+		writeResponse(w, http.StatusBadRequest, "Invalid book ID", nil, err.Error())
 		return
 	}
 
 	err = models.DeleteBook(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			writeJSON(w, http.StatusNotFound, map[string]string{"error": "book not found"})
+			writeResponse(w, http.StatusNotFound, "Book not found", nil, err.Error())
 			return
 		}
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to delete book"})
+		writeResponse(w, http.StatusInternalServerError, "Failed to delete book", nil, err.Error())
 		return
 	}
 
-	writeJSON(w, http.StatusOK, map[string]string{"message": "book deleted successfully"})
+	writeResponse(w, http.StatusOK, "Book deleted successfully", nil, "")
 }
