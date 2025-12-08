@@ -63,10 +63,9 @@ func parseID(r *http.Request, param string) (int64, error) {
 
 // Get All Books + Pagination
 func GetAllBooks(w http.ResponseWriter, r *http.Request) {
-	const maxLimit = 100
 
-	pageStr := r.URL.Query().Get("page")
-	limitStr := r.URL.Query().Get("limit")
+	pageStr := r.URL.Query().Get(constants.BookPageQuery)
+	limitStr := r.URL.Query().Get(constants.BookLimitQuery)
 
 	page, _ := strconv.Atoi(pageStr)
 	limit, _ := strconv.Atoi(limitStr)
@@ -78,8 +77,8 @@ func GetAllBooks(w http.ResponseWriter, r *http.Request) {
 		limit = 100
 	}
 
-	if limit > maxLimit {
-		limit = maxLimit
+	if limit > constants.MaxPageLimit {
+		limit = constants.MaxPageLimit
 	}
 
 	books, total, err := models.GetBooksPaginated(page, limit)

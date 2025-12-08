@@ -12,3 +12,9 @@ const (
 	ApplicationJson = "application/json"
 	ContentType     = "Content-Type"
 )
+
+const (
+	BookPageQuery  = "page"
+	BookLimitQuery = "limit"
+	MaxPageLimit   = 100
+)
