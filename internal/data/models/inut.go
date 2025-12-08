@@ -9,7 +9,7 @@ import (
 func init() {
 	config.Connect()
 	db = config.GetDB()
-	if err := db.AutoMigrate(&Book{}, &Author{}, &Category{}); err != nil {
+	if err := db.AutoMigrate(&Book{}, &Author{}, &BoolCategory{}); err != nil {
 		log.Fatalf("AutoMigrate failed: %v", err)
 	}
 }

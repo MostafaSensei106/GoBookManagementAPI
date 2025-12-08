@@ -9,13 +9,13 @@ var db *gorm.DB
 // -------------------- Book --------------------
 type Book struct {
 	gorm.Model
-	Name        string     `json:"name"`
-	Description string     `json:"description"`
-	ISBN        string     `json:"isbn"`
-	AuthorID    uint       `json:"author_id"`
-	Author      Author     `gorm:"foreignKey:AuthorID" json:"author"`
-	Categories  []Category `gorm:"many2many:book_categories;" json:"categories"`
-	Publication string     `json:"publication"`
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
+	ISBN        string         `json:"isbn"`
+	AuthorID    uint           `json:"author_id"`
+	Author      Author         `gorm:"foreignKey:AuthorID" json:"author"`
+	Categories  []BoolCategory `gorm:"many2many:book_categories;" json:"categories"`
+	Publication string         `json:"publication"`
 }
 
 func (b *Book) CreateBook() (*Book, error) {
@@ -39,4 +39,21 @@ func GetBookByID(id int64) (*Book, error) {
 		return nil, result.Error
 	}
 	return &book, nil
+}
+
+func DeleteBook(id int64) error {
+	var book Book
+	result := db.First(&book, id)
+	if result.Error != nil {
+		return result.Error
+	}
+	return db.Delete(&book).Error
+}
+
+func UpdateBook(id int64, book *Book) error {
+	result := db.First(&book, id)
+	if result.Error != nil {
+		return result.Error
+	}
+	return db.Save(&book).Error
 }
