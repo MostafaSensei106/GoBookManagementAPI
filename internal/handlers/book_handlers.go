@@ -63,6 +63,7 @@ func parseID(r *http.Request, param string) (int64, error) {
 
 // Get All Books + Pagination
 func GetAllBooks(w http.ResponseWriter, r *http.Request) {
+	const maxLimit = 500
 
 	pageStr := r.URL.Query().Get("page")
 	limitStr := r.URL.Query().Get("limit")
@@ -74,7 +75,11 @@ func GetAllBooks(w http.ResponseWriter, r *http.Request) {
 		page = 1
 	}
 	if limit < 1 {
-		limit = 20
+		limit = 100
+	}
+
+	if limit > maxLimit {
+		limit = maxLimit
 	}
 
 	books, total, err := models.GetBooksPaginated(page, limit)
