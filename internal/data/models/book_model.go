@@ -83,12 +83,32 @@ func (b *Book) CreateBook() (*Book, error) {
 	return b, nil
 }
 
-func GetAllBooks() ([]Book, error) {
+func GetBooksPaginated(page, limit int) ([]Book, int64, error) {
 	var books []Book
-	if err := db.Preload("Author").Preload("Categories").Find(&books).Error; err != nil {
-		return nil, err
+	var total int64
+
+	if err := db.Model(&Book{}).Count(&total).Error; err != nil {
+		return nil, 0, err
 	}
-	return books, nil
+
+	offset := (page - 1) * limit
+
+	err := db.
+		Preload("Author", func(db *gorm.DB) *gorm.DB {
+			return db.Limit(3000)
+		}).
+		Preload("Categories", func(db *gorm.DB) *gorm.DB {
+			return db.Limit(3000)
+		}).
+		Limit(limit).
+		Offset(offset).
+		Find(&books).Error
+
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return books, total, nil
 }
 
 func GetBookByID(id int64) (*Book, error) {

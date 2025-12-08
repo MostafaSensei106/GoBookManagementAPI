@@ -16,4 +16,5 @@ func Init() {
 	if err := db.AutoMigrate(&Author{}, &BookCategory{}, &Book{}); err != nil {
 		log.Fatalf("AutoMigrate failed: %v", err)
 	}
+
 }
