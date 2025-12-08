@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -16,6 +17,7 @@ func Start() {
 	routes.RegisterRoutes(r)
 	http.Handle(routes.Root, r)
 
-	log.Fatal(http.ListenAndServe(":9010", r))
+	fmt.Println("Server is running on port 8080")
+	log.Fatal(http.ListenAndServe(":8080", r))
 
 }

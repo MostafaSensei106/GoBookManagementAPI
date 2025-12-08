@@ -2,22 +2,22 @@ package models
 
 import "gorm.io/gorm"
 
-// -------------------- BoolCategory --------------------
-type BoolCategory struct {
+// -------------------- BookCategory --------------------
+type BookCategory struct {
 	gorm.Model
 	Name  string `json:"name"`
-	Books []Book `gorm:"many2many:book_categories;" json:"books"`
+	Books []Book `gorm:"many2many:books_categories;" json:"books"`
 }
 
-func (b *BoolCategory) CreateCategory() (*BoolCategory, error) {
+func (b *BookCategory) CreateCategory() (*BookCategory, error) {
 	if err := db.Create(b).Error; err != nil {
 		return nil, err
 	}
 	return b, nil
 }
 
-func GetAllCategories() ([]BoolCategory, error) {
-	var categories []BoolCategory
+func GetAllCategories() ([]BookCategory, error) {
+	var categories []BookCategory
 	if err := db.Preload("Books").
 		Find(&categories).
 		Error; err != nil {
@@ -26,8 +26,8 @@ func GetAllCategories() ([]BoolCategory, error) {
 	return categories, nil
 }
 
-func GetCategoryByID(id int64) (*BoolCategory, error) {
-	var category BoolCategory
+func GetCategoryByID(id int64) (*BookCategory, error) {
+	var category BookCategory
 	result := db.Preload("Books").First(&category, id)
 	if result.Error != nil {
 		return nil, result.Error
@@ -36,7 +36,7 @@ func GetCategoryByID(id int64) (*BoolCategory, error) {
 }
 
 func DeleteCategory(id int64) error {
-	var category BoolCategory
+	var category BookCategory
 	result := db.First(&category, id)
 	if result.Error != nil {
 		return result.Error
@@ -44,7 +44,7 @@ func DeleteCategory(id int64) error {
 	return db.Delete(&category).Error
 }
 
-func UpdateCategory(id int64, category *BoolCategory) error {
+func UpdateCategory(id int64, category *BookCategory) error {
 	result := db.First(&category, id)
 	if result.Error != nil {
 		return result.Error

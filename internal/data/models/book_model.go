@@ -4,8 +4,6 @@ import (
 	"gorm.io/gorm"
 )
 
-var db *gorm.DB
-
 // -------------------- Book --------------------
 type Book struct {
 	gorm.Model
@@ -14,7 +12,7 @@ type Book struct {
 	ISBN        string         `json:"isbn"`
 	AuthorID    uint           `json:"author_id"`
 	Author      Author         `gorm:"foreignKey:AuthorID" json:"author"`
-	Categories  []BoolCategory `gorm:"many2many:book_categories;" json:"categories"`
+	Categories  []BookCategory `gorm:"many2many:books_categories;" json:"categories"`
 	Publication string         `json:"publication"`
 }
 
@@ -44,7 +42,7 @@ func (b *Book) copyWith(fields map[string]interface{}) *Book {
 			}
 
 		case "categories":
-			if v, ok := value.([]BoolCategory); ok {
+			if v, ok := value.([]BookCategory); ok {
 				newBook.Categories = v
 			}
 
