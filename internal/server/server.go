@@ -14,9 +14,6 @@ func Start() {
 	routes.RegisterRoutes(r)
 	http.Handle(routes.Root, r)
 
-	// db := config.GetDB()
-	// bookRepository := repository.NewBookRepository(db)
-
 	log.Fatal(http.ListenAndServe(":9010", r))
 
 }

@@ -3,7 +3,7 @@ package handlers
 import (
 	"net/http"
 
-	models "github.com/MostafaSensei106/GoBookManagementAPI/internal/data/models/book_model"
+	"github.com/MostafaSensei106/GoBookManagementAPI/internal/data/models"
 )
 
 var NewBook models.Book
