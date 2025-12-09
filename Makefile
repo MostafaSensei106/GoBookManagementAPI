@@ -7,18 +7,17 @@
 # For best results on Windows, please run 'make' commands from a
 # POSIX-compliant shell like Git Bash or within WSL/MSYS2.
 
-
+# declare variables
 GOOS ?= $(shell go env GOOS)
 GOARCH ?= $(shell go env GOARCH)
-APP_NAME ?= GoBookManagementAPI
-OUTPUT_DIR ?= bin/$(GOOS)/$(GOARCH)
+APP_NAME := GoBookManagementAPI
+OUTPUT_DIR := bin/$(GOOS)/$(GOARCH)
 OUTPUT := $(OUTPUT_DIR)/$(APP_NAME)
+GOWEBBASE_VERSION := 1.0.0
 
 .PHONY: all build clean release help check deps fmt vet install docker-build docker-run
 
 all: build
-
-deps:
 
 deps:
 	 @echo "📦 Checking dependencies..."
@@ -45,7 +44,7 @@ vet:
 check: deps fmt vet
 
 build: check
- @echo "📦 Building $(APP_NAME) for $(GOOS)/$(GOARCH)..."
+	 @echo "📦 Building $(APP_NAME) for $(GOOS)/$(GOARCH)..."
 	 @mkdir -p $(OUTPUT_DIR)
 	 @GOOS=$(GOOS) GOARCH=$(GOARCH) go build -o $(OUTPUT) .
 	 @echo "✅ Build complete: $(OUTPUT)"
@@ -56,7 +55,6 @@ build: check
 install: build
 	@echo "✅ $(APP_NAME) built successfully. Find the executable in the '$(OUTPUT_DIR)' directory."
 	@echo "This project is a web service and is not installed to a system-wide directory."
-
 
 release: check
 	 @{ \
@@ -97,7 +95,6 @@ release: check
 		echo "🎉 Release archives created in the 'release' directory."; \
 		echo "NOTE: Ensure 'zip' and 'tar' utilities are available in your system's PATH for archiving. On Windows, Git Bash or WSL is recommended."; \
 	}
-
 
 docker-build:
 	@echo "🐳 Building Docker image..."
