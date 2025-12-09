@@ -114,7 +114,7 @@ help:
 	 @echo "make fmt           👉 Format all Go source files."
 	 @echo "make vet           👉 Run 'go vet' to check for suspicious constructs."
 	 @echo "make check         👉 Run all checks (deps, fmt, vet)."
-	 @echo "make build         👉 Build the 'gowebbase' executable for the current OS/architecture."
+	 @echo "make build         👉 Build the 'GoBookManagementAPI' executable for the current OS/architecture."
 	 @echo "make install       👉 An alias for 'make build'. Does not install system-wide."
 	 @echo "make release       👉 Build and package for all target platforms (Linux, Windows)."
 	 @echo "make docker-build  👉 Build the Docker image for the application."
